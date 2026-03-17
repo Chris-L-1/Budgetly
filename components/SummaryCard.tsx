@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 interface SummaryCardProps {
   title: string;
@@ -8,10 +9,12 @@ interface SummaryCardProps {
 }
 
 const SummaryCard: React.FC<SummaryCardProps> = ({ title, amount, type }) => {
+  const { colors } = useTheme();
+
   const getAmountColor = () => {
-    if (type === 'income') return '#2ecc71';
-    if (type === 'expense') return '#e74c3c';
-    return '#2980b9';
+    if (type === 'income') return colors.income;
+    if (type === 'expense') return colors.expense;
+    return colors.primary;
   };
 
   const getEmoji = () => {
@@ -21,9 +24,9 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, amount, type }) => {
   };
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: colors.card }]}>
       <Text style={styles.emoji}>{getEmoji()}</Text>
-      <Text style={styles.title}>{title}</Text>
+      <Text style={[styles.title, { color: colors.subText }]}>{title}</Text>
       <Text style={[styles.amount, { color: getAmountColor() }]}>
         R {amount.toFixed(2)}
       </Text>
@@ -33,7 +36,6 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, amount, type }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 20,
     alignItems: 'center',
@@ -52,8 +54,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#555',
     marginBottom: 10,
+    textAlign: 'center',
   },
   amount: {
     fontSize: 18,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Transaction } from '../types';
+import { useTheme } from '../context/ThemeContext';
 
 interface TransactionItemProps {
   transaction: Transaction;
@@ -8,37 +9,36 @@ interface TransactionItemProps {
 }
 
 const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onDelete }) => {
+  const { colors } = useTheme();
   const isIncome = transaction.type === 'income';
 
   return (
-    <View style={styles.container}>
-
-      {/* Left side — emoji + details */}
+    <View style={[styles.container, { backgroundColor: colors.card }]}>
       <View style={styles.left}>
         <Text style={styles.emoji}>{isIncome ? '🟢' : '🔴'}</Text>
         <View>
-          <Text style={styles.description}>{transaction.description}</Text>
-          <Text style={styles.category}>{transaction.category} • {transaction.date}</Text>
+          <Text style={[styles.description, { color: colors.text }]}>
+            {transaction.description}
+          </Text>
+          <Text style={[styles.category, { color: colors.subText }]}>
+            {transaction.category} • {transaction.date}
+          </Text>
         </View>
       </View>
-
-      {/* Right side — amount + delete */}
       <View style={styles.right}>
-        <Text style={[styles.amount, { color: isIncome ? '#2ecc71' : '#e74c3c' }]}>
+        <Text style={[styles.amount, { color: isIncome ? colors.income : colors.expense }]}>
           {isIncome ? '+' : '-'} R {transaction.amount.toFixed(2)}
         </Text>
         <TouchableOpacity onPress={() => onDelete(transaction.id)}>
           <Text style={styles.delete}>🗑️</Text>
         </TouchableOpacity>
       </View>
-
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#ffffff',
     borderRadius: 10,
     padding: 14,
     marginBottom: 10,
@@ -51,38 +51,13 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 2,
   },
-  left: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    flex: 1,
-  },
-  emoji: {
-    fontSize: 20,
-    marginRight: 10,
-  },
-  description: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#333',
-  },
-  category: {
-    fontSize: 12,
-    color: '#888',
-    marginTop: 3,
-  },
-  right: {
-    alignItems: 'flex-end',
-    gap: 6,
-  },
-  amount: {
-    fontSize: 15,
-    fontWeight: 'bold',
-  },
-  delete: {
-    fontSize: 18,
-  },
+  left: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
+  emoji: { fontSize: 20, marginRight: 10 },
+  description: { fontSize: 15, fontWeight: '600' },
+  category: { fontSize: 12, marginTop: 3 },
+  right: { alignItems: 'flex-end', gap: 6 },
+  amount: { fontSize: 15, fontWeight: 'bold' },
+  delete: { fontSize: 18 },
 });
 
 export default TransactionItem;
-

@@ -13,9 +13,11 @@ import { useNavigation } from '@react-navigation/native';
 import { loadTransactions, saveTransactions } from '../utils/storage';
 import { Transaction, TransactionType } from '../types';
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '../constants/categories';
+import { useTheme } from '../context/ThemeContext';
 
 export default function AddScreen() {
   const navigation = useNavigation();
+  const { colors } = useTheme();
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<TransactionType>('income');
@@ -29,7 +31,6 @@ export default function AddScreen() {
   };
 
   const handleSubmit = async () => {
-    // Validation
     if (!description.trim()) {
       Alert.alert('Missing Info', 'Please enter a description');
       return;
@@ -51,7 +52,6 @@ export default function AddScreen() {
     const existing = await loadTransactions();
     await saveTransactions([newTransaction, ...existing]);
 
-    // Reset form
     setDescription('');
     setAmount('');
     setType('income');
@@ -63,66 +63,65 @@ export default function AddScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scroll}>
 
-        {/* Type Toggle */}
-        <View style={styles.toggleRow}>
+        <View style={[styles.toggleRow, { borderColor: colors.border }]}>
           <TouchableOpacity
-            style={[styles.toggleBtn, type === 'income' && styles.toggleActive]}
+            style={[styles.toggleBtn, type === 'income' && { backgroundColor: colors.income }]}
             onPress={() => handleTypeChange('income')}
           >
-            <Text style={[styles.toggleText, type === 'income' && styles.toggleTextActive]}>
+            <Text style={[styles.toggleText, { color: type === 'income' ? '#fff' : colors.subText }]}>
               🔥 Income
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.toggleBtn, type === 'expense' && styles.toggleExpense]}
+            style={[styles.toggleBtn, type === 'expense' && { backgroundColor: colors.expense }]}
             onPress={() => handleTypeChange('expense')}
           >
-            <Text style={[styles.toggleText, type === 'expense' && styles.toggleTextActive]}>
+            <Text style={[styles.toggleText, { color: type === 'expense' ? '#fff' : colors.subText }]}>
               💸 Expense
             </Text>
           </TouchableOpacity>
         </View>
 
-        {/* Form Card */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.card }]}>
 
-          {/* Description */}
-          <Text style={styles.label}>Description</Text>
+          <Text style={[styles.label, { color: colors.subText }]}>Description</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.input, borderColor: colors.border, color: colors.text }]}
             placeholder="e.g. Monthly Salary"
+            placeholderTextColor={colors.subText}
             value={description}
             onChangeText={setDescription}
           />
 
-          {/* Amount */}
-          <Text style={styles.label}>Amount (R)</Text>
+          <Text style={[styles.label, { color: colors.subText }]}>Amount (R)</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.input, borderColor: colors.border, color: colors.text }]}
             placeholder="e.g. 5000"
+            placeholderTextColor={colors.subText}
             value={amount}
             onChangeText={setAmount}
             keyboardType="numeric"
           />
 
-          {/* Category */}
-          <Text style={styles.label}>Category</Text>
+          <Text style={[styles.label, { color: colors.subText }]}>Category</Text>
           <View style={styles.categoryGrid}>
             {categories.map(cat => (
               <TouchableOpacity
                 key={cat}
                 style={[
                   styles.categoryBtn,
-                  category === cat && styles.categoryBtnActive,
+                  { borderColor: colors.border, backgroundColor: colors.input },
+                  category === cat && { backgroundColor: colors.primary, borderColor: colors.primary },
                 ]}
                 onPress={() => setCategory(cat)}
               >
                 <Text style={[
                   styles.categoryText,
-                  category === cat && styles.categoryTextActive,
+                  { color: colors.subText },
+                  category === cat && { color: '#ffffff', fontWeight: '600' },
                 ]}>
                   {cat}
                 </Text>
@@ -130,8 +129,10 @@ export default function AddScreen() {
             ))}
           </View>
 
-          {/* Submit Button */}
-          <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
+          <TouchableOpacity
+            style={[styles.submitBtn, { backgroundColor: colors.primary }]}
+            onPress={handleSubmit}
+          >
             <Text style={styles.submitText}>Add Transaction</Text>
           </TouchableOpacity>
 
@@ -142,43 +143,22 @@ export default function AddScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f4f6f9',
-  },
-  scroll: {
-    padding: 16,
-  },
+  container: { flex: 1 },
+  scroll: { padding: 16 },
   toggleRow: {
     flexDirection: 'row',
     marginBottom: 20,
     borderRadius: 10,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#ddd',
   },
   toggleBtn: {
     flex: 1,
     paddingVertical: 12,
     alignItems: 'center',
-    backgroundColor: '#fff',
   },
-  toggleActive: {
-    backgroundColor: '#2ecc71',
-  },
-  toggleExpense: {
-    backgroundColor: '#e74c3c',
-  },
-  toggleText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#888',
-  },
-  toggleTextActive: {
-    color: '#ffffff',
-  },
+  toggleText: { fontSize: 15, fontWeight: '600' },
   card: {
-    backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 20,
     shadowColor: '#000',
@@ -187,58 +167,26 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#555',
-    marginBottom: 8,
-    marginTop: 16,
-  },
+  label: { fontSize: 14, fontWeight: '600', marginBottom: 8, marginTop: 16 },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 8,
     padding: 12,
     fontSize: 15,
-    color: '#333',
-    backgroundColor: '#fafafa',
   },
-  categoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 4,
-  },
+  categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },
   categoryBtn: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#fafafa',
   },
-  categoryBtnActive: {
-    backgroundColor: '#2980b9',
-    borderColor: '#2980b9',
-  },
-  categoryText: {
-    fontSize: 13,
-    color: '#555',
-  },
-  categoryTextActive: {
-    color: '#ffffff',
-    fontWeight: '600',
-  },
+  categoryText: { fontSize: 13 },
   submitBtn: {
-    backgroundColor: '#2980b9',
     borderRadius: 10,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 24,
   },
-  submitText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  submitText: { color: '#ffffff', fontSize: 16, fontWeight: 'bold' },
 });

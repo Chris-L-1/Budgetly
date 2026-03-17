@@ -2,35 +2,51 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { TouchableOpacity } from 'react-native';
 
 import HomeScreen from './screens/HomeScreen';
 import AddScreen from './screens/AddScreen';
 import HistoryScreen from './screens/HistoryScreen';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 
 const Tab = createBottomTabNavigator();
 
-export default function App() {
+function AppNavigator() {
+  const { colors, toggleTheme, theme } = useTheme();
+
   return (
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={{
-          tabBarActiveTintColor: '#2980b9',
-          tabBarInactiveTintColor: '#888',
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.subText,
           tabBarStyle: {
-            backgroundColor: '#ffffff',
+            backgroundColor: colors.tabBar,
             borderTopWidth: 1,
-            borderTopColor: '#eee',
+            borderTopColor: colors.border,
             height: 60,
             paddingBottom: 8,
           },
           headerStyle: {
-            backgroundColor: '#ffffff',
+            backgroundColor: colors.header,
           },
           headerTitleStyle: {
             fontWeight: 'bold',
-            color: '#2980b9',
+            color: colors.primary,
             fontSize: 22,
           },
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={toggleTheme}
+              style={{ marginRight: 16 }}
+            >
+              <Ionicons
+                name={theme === 'light' ? 'moon-outline' : 'sunny-outline'}
+                size={24}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+          ),
         }}
       >
         <Tab.Screen
@@ -68,5 +84,13 @@ export default function App() {
         />
       </Tab.Navigator>
     </NavigationContainer>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppNavigator />
+    </ThemeProvider>
   );
 }
